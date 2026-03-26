@@ -21,6 +21,15 @@ const { title = 'ALC Valet Parking Alicante | PARKING AEROPUERTO ALICANTE' } = A
 		<title>{title}</title>
 		<ClientRouter />
 	</head>
+	<!-- Google tag (gtag.js) -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=AW-18013741322"></script>
+	<script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+
+	gtag('config', 'AW-18013741322');
+	</script>
 	<body>
 		<div class="bg-black d-flex justify-content-between py-2 px-5">
 			<LanguagePicker />

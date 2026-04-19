@@ -525,6 +525,7 @@
                 <option value="Ya soy cliente"
                   >{t("nosConociste.yaSoyCliente")}</option
                 >
+                <option value="Contrato Anual">{t("nosConociste.contratoAnual")}</option>
                 <option value="Google">Google</option>
                 <option value="Un amigo">{t("nosConociste.unAmigo")}</option>
                 <option value="Internet">Internet</option>

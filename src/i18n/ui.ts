@@ -115,6 +115,7 @@ export const ui = {
         "reservar.success.description": "Hemos enviado los detalles a tu correo electrónico.",
         "reservar.success.button": "Nueva Reserva",
         
+        "nosConociste.contratoAnual": "Contrato Anual",
         "nosConociste.yaSoyCliente": "Ya soy cliente",
         "nosConociste.unAmigo": "Un amigo",
         
@@ -320,6 +321,7 @@ export const ui = {
         "reservar.success.description": "We have sent the details to your email address.",
         "reservar.success.button": "New Reservation",
 
+        "nosConociste.contratoAnual": "Annual Contract",
         "nosConociste.yaSoyCliente": "I am already a customer",
         "nosConociste.unAmigo": "A friend",
         
@@ -525,6 +527,7 @@ export const ui = {
         "reservar.success.description": "We hebben de details naar je e-mailadres gestuurd.",
         "reservar.success.button": "Nieuwe reservering",
         
+        "nosConociste.contratoAnual": "Annual Contract",
         "nosConociste.yaSoyCliente": "Ik ben al klant",
         "nosConociste.unAmigo": "Een vriend",
 

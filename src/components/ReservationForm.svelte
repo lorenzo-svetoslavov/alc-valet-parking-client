@@ -1,6 +1,8 @@
 <script>
   import { user } from "@/stores/auth";
+  import { supabase } from "@/lib/supabase";
   import { useTranslatedPath, useTranslations } from "@/i18n/utils";
+  import { onMount } from "svelte";
   import { z } from "zod";
   import BookingDates from "./BookingDates.svelte";
 
@@ -106,6 +108,19 @@
 
   let formErrors = {};
 
+  // Vehículos del usuario logueado
+  let vehicles = [];
+  let selectedVehicleId = ""; // "" => escribir a mano
+  let loadedVehiclesFor = null; // id del usuario cuya lista ya cargamos
+
+  // Muestra el selector solo si el usuario está logueado y tiene vehículos.
+  $: hasVehicles = !!$user && vehicles.length > 0;
+
+  // Los inputs manuales aparecen cuando:
+  //  - no hay selector (no logueado, o logueado sin vehículos), o
+  //  - el usuario elige explícitamente "Escribir otro vehículo".
+  $: showManualVehicle = !hasVehicles || selectedVehicleId === "__manual__";
+
   // Estados de UI
   let isSubmitting = false;
   let submitSuccess = false;
@@ -119,6 +134,60 @@
   $: if ($user) {
     formData.clienteId = $user.id || null;
   }
+
+  // Carga los vehículos del usuario en cuanto hay sesión (una sola vez por id)
+  $: if ($user?.id && loadedVehiclesFor !== $user.id) {
+    loadUserVehicles($user.id);
+  }
+
+  async function loadUserVehicles(userId) {
+    loadedVehiclesFor = userId;
+    const { data, error } = await supabase
+      .from("vehiculos")
+      .select("*")
+      .eq("cliente_id", userId);
+
+    if (error) {
+      console.error("Error cargando vehículos:", error);
+      return;
+    }
+    vehicles = data || [];
+  }
+
+  function clearVehicleFields() {
+    formData.coche = "";
+    formData.matricula = "";
+    formErrors.coche = "";
+    formErrors.matricula = "";
+    formErrors = { ...formErrors };
+  }
+
+  function onSelectVehicle() {
+    const v = vehicles.find((x) => String(x.id) === String(selectedVehicleId));
+    if (v) {
+      // Rellenar con los datos del vehículo elegido y validar
+      formData.coche = v.coche;
+      formData.matricula = v.matricula;
+      validateField("coche");
+      validateField("matricula");
+    } else {
+      // Placeholder ("") o "Escribir otro" (__manual__): vaciar y limpiar errores
+      clearVehicleFields();
+    }
+  }
+
+  // Al volver de la pestaña del perfil, refrescamos la lista de vehículos
+  function handleVisibility() {
+    if (document.visibilityState === "visible" && $user?.id) {
+      loadUserVehicles($user.id);
+    }
+  }
+
+  onMount(() => {
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibility);
+  });
 
   // JSON.stringify crea un string simple. Si cambias el nombre o coche,
   // formData cambia, PERO este string resultante sigue siendo idéntico.
@@ -331,45 +400,93 @@
               </div>{/if}
           </div>
 
-          <div class="col-12 col-md-6">
-            <label for="car" class="form-label font-bold"
-              >{t("reservar.label.coche")}<span class="text-danger">*</span
-              ></label
-            >
-            <input
-              id="coche"
-              type="text"
-              class="form-control"
-              bind:value={formData.coche}
-              class:is-invalid={formErrors.coche}
-              placeholder={t("reservar.placeholder.coche")}
-              on:input={handleInput}
-              on:blur={handleInput}
-            />
-            {#if formErrors.coche}<div class="invalid-feedback">
-                {formErrors.coche}
-              </div>{/if}
-          </div>
+          {#if hasVehicles}
+            <div class="col-12 col-md-6">
+              <label for="miVehiculo" class="form-label font-bold"
+                >{t("reservar.label.miVehiculo")}<span class="text-danger"
+                  >*</span
+                ></label
+              >
+              <select
+                id="miVehiculo"
+                class="form-select"
+                bind:value={selectedVehicleId}
+                on:change={onSelectVehicle}
+              >
+                <option value=""
+                  >{t("reservar.vehicle.selectPlaceholder")}</option
+                >
+                {#each vehicles as v (v.id)}
+                  <option value={v.id}>{v.coche} — {v.matricula}</option>
+                {/each}
+                <option value="__manual__"
+                  >{t("reservar.vehicle.writeOther")}</option
+                >
+              </select>
 
-          <div class="col-12 col-md-6">
-            <label for="license plate" class="form-label font-bold"
-              >{t("reservar.label.matricula")}<span class="text-danger">*</span
-              ></label
-            >
-            <input
-              id="matricula"
-              type="text"
-              class="form-control"
-              bind:value={formData.matricula}
-              class:is-invalid={formErrors.matricula}
-              placeholder={t("reservar.placeholder.matricula")}
-              on:input={handleInput}
-              on:blur={handleInput}
-            />
-            {#if formErrors.matricula}<div class="invalid-feedback">
-                {formErrors.matricula}
-              </div>{/if}
-          </div>
+              <div class="mt-2">
+                <small class="text-muted">
+                  {t("reservar.vehicle.notListed")}
+                  <a
+                    href={translatePath("/perfil")}
+                    target="_blank"
+                    rel="noopener">{t("reservar.vehicle.addToProfile")}</a
+                  >
+                </small>
+              </div>
+            </div>
+          {/if}
+
+          {#if showManualVehicle}
+            {#if $user && !hasVehicles}
+              <div class="col-12">
+                <div class="alert alert-light border small mb-0 py-2">
+                  {t("reservar.vehicle.saveHint")}
+                </div>
+              </div>
+            {/if}
+
+            <div class="col-12 col-md-6">
+              <label for="car" class="form-label font-bold"
+                >{t("reservar.label.coche")}<span class="text-danger">*</span
+                ></label
+              >
+              <input
+                id="coche"
+                type="text"
+                class="form-control"
+                bind:value={formData.coche}
+                class:is-invalid={formErrors.coche}
+                placeholder={t("reservar.placeholder.coche")}
+                on:input={handleInput}
+                on:blur={handleInput}
+              />
+              {#if formErrors.coche}<div class="invalid-feedback">
+                  {formErrors.coche}
+                </div>{/if}
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label for="license plate" class="form-label font-bold"
+                >{t("reservar.label.matricula")}<span class="text-danger"
+                  >*</span
+                ></label
+              >
+              <input
+                id="matricula"
+                type="text"
+                class="form-control"
+                bind:value={formData.matricula}
+                class:is-invalid={formErrors.matricula}
+                placeholder={t("reservar.placeholder.matricula")}
+                on:input={handleInput}
+                on:blur={handleInput}
+              />
+              {#if formErrors.matricula}<div class="invalid-feedback">
+                  {formErrors.matricula}
+                </div>{/if}
+            </div>
+          {/if}
 
           <div class="col-12 col-md-6">
             <label for="num flight" class="form-label font-bold"
@@ -382,7 +499,7 @@
               placeholder={t("reservar.placeholder.numVuelo")}
             />
           </div>
-          <div class="col-12">
+          <div class="col-12 col-md-6">
             <label for="comments" class="form-label font-bold"
               >{t("reservar.label.comentarios")}</label
             >

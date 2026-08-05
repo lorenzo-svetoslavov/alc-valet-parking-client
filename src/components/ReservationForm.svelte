@@ -19,6 +19,10 @@
     EMPRESA: "empresa",
   };
 
+  // Franja nocturna con suplemento: de 23:00 a 05:59 (en minutos desde las 00:00)
+  const NOCTURNIDAD_INICIO = 23 * 60;
+  const NOCTURNIDAD_FIN = 6 * 60;
+
   // --- SCHEMAS DE VALIDACIÓN (ZOD) ---
 
   // Schema base para campos comunes
@@ -188,6 +192,44 @@
     return () =>
       document.removeEventListener("visibilitychange", handleVisibility);
   });
+
+  // --- AVISO DE NOCTURNIDAD ---
+
+  function esHoraNocturna(hora) {
+    if (!hora) return false;
+
+    const [h, m] = hora.split(":").map(Number);
+    if (Number.isNaN(h) || Number.isNaN(m)) return false;
+
+    const minutos = h * 60 + m;
+    return minutos >= NOCTURNIDAD_INICIO || minutos < NOCTURNIDAD_FIN;
+  }
+
+  // Guarda las horas nocturnas ya avisadas para no repetir el alert
+  let avisoNocturnidadMostrado = "";
+
+  // Solo cambia cuando alguna de las dos horas entra/sale de la franja nocturna
+  $: nocturnidadSignature = [
+    esHoraNocturna(formData.horaEntrada) ? formData.horaEntrada : "",
+    esHoraNocturna(formData.horaSalida) ? formData.horaSalida : "",
+  ].join("|");
+
+  $: avisarNocturnidad(nocturnidadSignature);
+
+  function avisarNocturnidad(signature) {
+    if (typeof window === "undefined") return;
+
+    // Ninguna hora nocturna: reseteamos para volver a avisar si vuelve a serlo
+    if (signature === "|") {
+      avisoNocturnidadMostrado = "";
+      return;
+    }
+
+    if (signature === avisoNocturnidadMostrado) return;
+
+    avisoNocturnidadMostrado = signature;
+    alert(t("reservar.alert.nocturnidad"));
+  }
 
   // JSON.stringify crea un string simple. Si cambias el nombre o coche,
   // formData cambia, PERO este string resultante sigue siendo idéntico.

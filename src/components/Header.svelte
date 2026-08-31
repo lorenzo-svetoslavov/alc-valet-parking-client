@@ -77,13 +77,6 @@
                     </li>
                     <li class="nav-item">
                         <a
-                            href={translatePath("/tarifas")}
-                            class="nav-link fw-medium text-light"
-                            >{t("header.prices").toUpperCase()}</a
-                        >
-                    </li>
-                    <li class="nav-item">
-                        <a
                             href={translatePath("/reservar")}
                             class="nav-link fw-medium text-light"
                             >{t("header.booking").toUpperCase()}</a

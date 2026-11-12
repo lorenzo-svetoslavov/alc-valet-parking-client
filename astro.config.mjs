@@ -25,6 +25,9 @@ export default defineConfig({
       }
     },
     css: {
+      lightningcss: {
+        errorRecovery: true
+      },
       preprocessorOptions: {
         scss: {
           quietDeps: true,

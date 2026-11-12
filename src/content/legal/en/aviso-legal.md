@@ -87,7 +87,7 @@ The company reserves the right to move your vehicle within the car park.
 
 ## 5. DATA PROTECTION
 
-In accordance with Organic Law 15/1999, your data will be included in a file belonging to ALC VALET PARKING O.E. for the management of our services.
+In accordance with Organic Law 15/1999, your data will be included in a file belonging to ALC CARS RENT AND PARKING S.L for the management of our services.
 
 If you wish to exercise your rights of access, rectification, cancellation or opposition, you can do so by sending an e-mail to: info@alcvaletparking.com
 

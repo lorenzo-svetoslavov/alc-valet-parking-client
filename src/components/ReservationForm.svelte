@@ -76,11 +76,35 @@
     });
 
     // Esquema FINAL: Zod elige automáticamente cuál usar según el "tipoCliente"
-    return z.discriminatedUnion("tipoCliente", [
-      ParticularSchema,
-      EmpresaSchema,
-    ]);
+    return z
+      .discriminatedUnion("tipoCliente", [
+        ParticularSchema,
+        EmpresaSchema,
+      ])
+      .superRefine((data, ctx) => {
+        // Festivos con cierre a las 14:00 (incluida): 24 y 31 de diciembre (cualquier año)
+        const validarHoraFestivo = (fecha, hora, campo) => {
+          if (esCierreFestivo(fecha) && hora && hora > "14:00") {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              path: [campo],
+              message: "horaFestivoNoPermitida",
+            });
+          }
+        };
+
+        validarHoraFestivo(data.fechaEntrada, data.horaEntrada, "horaEntrada");
+        validarHoraFestivo(data.fechaSalida, data.horaSalida, "horaSalida");
+      });
   };
+
+  // Comprueba si una fecha es 24 o 31 de diciembre (cierre festivo a las 14:00)
+  function esCierreFestivo(fechaStr) {
+    if (!fechaStr) return false;
+    // Parseamos como fecha local (YYYY-MM-DDT00:00:00) para evitar desfase UTC
+    const date = new Date(`${fechaStr}T00:00:00`);
+    return date.getMonth() === 11 && (date.getDate() === 24 || date.getDate() === 31);
+  }
 
   // --- ESTADO REACTIVO ---
 
@@ -414,6 +438,7 @@
             bind:horaEntrada={formData.horaEntrada}
             bind:fechaSalida={formData.fechaSalida}
             bind:horaSalida={formData.horaSalida}
+            errors={{ horaEntrada: formErrors.horaEntrada || "", horaSalida: formErrors.horaSalida || "" }}
           />
 
           <div class="col-12 col-md-6">

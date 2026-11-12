@@ -27,13 +27,49 @@
     },
   ];
 
+  // Errores de validación que llegan del formulario padre
+  export let errors = { horaEntrada: "", horaSalida: "" };
+
   const t = useTranslations(lang);
+
+  // Horario de festivo: 24 y 31 de diciembre cerramos a las 14:00 (incluida)
+  const HORA_MAX_FESTIVO = "14:00";
+  const HORA_MAX_NORMAL = "23:55";
+
+  // Comprueba si una fecha es 24 o 31 de diciembre (cualquier año)
+  function esCierreFestivo(fechaStr) {
+    if (!fechaStr) return false;
+    // Parseamos como fecha local (YYYY-MM-DDT00:00:00) para evitar desfase UTC
+    const date = new Date(`${fechaStr}T00:00:00`);
+    return date.getMonth() === 11 && (date.getDate() === 24 || date.getDate() === 31);
+  }
 
   // REFERENCIAS AL HTML (Para que Flatpickr sepa dónde pintarse)
   let refInputFechaEntrada;
   let refInputHoraEntrada;
   let refInputFechaSalida;
   let refInputHoraSalida;
+
+  // Referencias a los selectores de hora (para cambiarles el maxTime)
+  let fpHoraEntrada;
+  let fpHoraSalida;
+
+  // Actualiza el maxTime del selector de hora según la fecha elegida
+  function actualizarMaxTimeHora(fpHora, fechaStr, horaActual, setHora) {
+    if (!fpHora) return;
+    const maxTime = esCierreFestivo(fechaStr) ? HORA_MAX_FESTIVO : HORA_MAX_NORMAL;
+    fpHora.set("maxTime", maxTime);
+
+    // Si la hora seleccionada supera el nuevo máximo, la limpiamos
+    if (fechaStr && horaActual && horaActual > maxTime) {
+      fpHora.clear();
+      setHora("");
+    }
+  }
+
+  // Texto de ayuda dinámico (06:00 - 14:00 en fechas de cierre festivo)
+  $: maxHoraEntrada = esCierreFestivo(fechaEntrada) ? HORA_MAX_FESTIVO : HORA_MAX_NORMAL;
+  $: maxHoraSalida = esCierreFestivo(fechaSalida) ? HORA_MAX_FESTIVO : HORA_MAX_NORMAL;
 
   onMount(() => {
     // CALCULAR LA FECHA MÍNIMA DE ENTRADA
@@ -58,6 +94,9 @@
       onChange: (selectedDates, dateStr) => {
         fechaEntrada = dateStr; // Actualizamos la variable para Svelte
 
+        // Límite de hora en 24/31 de diciembre (cierre festivo a las 14:00)
+        actualizarMaxTimeHora(fpHoraEntrada, dateStr, horaEntrada, (v) => (horaEntrada = v));
+
         // Actualizamos el mínimo de la salida
         fpSalida.set("minDate", dateStr);
         // Si la salida es menor a la nueva entrada, limpiamos salida
@@ -73,6 +112,9 @@
       minDate: manana,
       onChange: (_, dateStr) => {
         fechaSalida = dateStr; // Actualizamos variable
+
+        // Límite de hora en 24/31 de diciembre (cierre festivo a las 14:00)
+        actualizarMaxTimeHora(fpHoraSalida, dateStr, horaSalida, (v) => (horaSalida = v));
       },
     });
 
@@ -108,13 +150,13 @@
       }
     };
 
-    flatpickr(refInputHoraEntrada, {
+    fpHoraEntrada = flatpickr(refInputHoraEntrada, {
       ...configHora,
       onChange: (_, timeStr) => (horaEntrada = timeStr),
       onClose: corregirMinutos,
     });
 
-    flatpickr(refInputHoraSalida, {
+    fpHoraSalida = flatpickr(refInputHoraSalida, {
       ...configHora,
       onChange: (_, timeStr) => (horaSalida = timeStr),
       onClose: corregirMinutos,
@@ -150,10 +192,14 @@
       <input
         bind:this={refInputHoraEntrada}
         class="w-full p-2 border border-gray-300 rounded focus:border-blue-500 outline-none bg-white"
+        class:is-invalid={errors.horaEntrada}
         placeholder="--:--"
       />
+      {#if errors.horaEntrada}
+        <div class="invalid-feedback">{errors.horaEntrada}</div>
+      {/if}
       <p class="text-xs text-gray-500 mt-1 flex items-center mb-0">
-        {t("reservar.textHelp.horaEntrada")}: 06:00 - 23:55
+        {t("reservar.textHelp.horaEntrada")}: 06:00 - {maxHoraEntrada}
       </p>
     </div>
   </div>
@@ -185,10 +231,14 @@
       <input
         bind:this={refInputHoraSalida}
         class="w-full p-2 border border-gray-300 rounded focus:border-blue-500 outline-none bg-white"
+        class:is-invalid={errors.horaSalida}
         placeholder="--:--"
       />
+      {#if errors.horaSalida}
+        <div class="invalid-feedback">{errors.horaSalida}</div>
+      {/if}
       <p class="text-xs text-gray-500 mt-1 flex items-center mb-0">
-        {t("reservar.textHelp.horaEntrada")}: 06:00 - 23:55
+        {t("reservar.textHelp.horaEntrada")}: 06:00 - {maxHoraSalida}
       </p>
     </div>
   </div>

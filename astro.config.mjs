@@ -23,6 +23,41 @@ export default defineConfig({
       alias: {
         '@': '/src',
       }
+    },
+    css: {
+      preprocessorOptions: {
+        scss: {
+          quietDeps: true,
+          silenceDeprecations: ['import']
+        }
+      }
+    },
+    optimizeDeps: {
+      exclude: [
+        '@astrojs/cloudflare',
+        '@astrojs/svelte',
+        'svelte',
+        'astro',
+        'astro/actions',
+        'astro:actions',
+        'astro/content',
+        'astro:content'
+      ]
+    },
+    ssr: {
+      optimizeDeps: {
+        noDiscovery: true,
+        exclude: [
+          '@astrojs/cloudflare',
+          '@astrojs/svelte',
+          'svelte',
+          'astro',
+          'astro/actions',
+          'astro:actions',
+          'astro/content',
+          'astro:content'
+        ]
+      }
     }
   },
 

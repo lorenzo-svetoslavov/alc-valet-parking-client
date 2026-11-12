@@ -10,8 +10,9 @@ Al utilizar nuestros servicios o nuestra web, aceptas los términos de esta Pol�
 
 ## 2. RESPONSABLE DEL TRATAMIENTO
 
-- **Razón Social:** ALC VALET PARKING O.E.
-- **Dirección:** Carr. de Torrellano al Aeropuerto, s/n, 03320 Elche, Alicante
+- **Razón Social:** ALC CARS RENT AND PARKING S.L
+- **CIF:** B05677042
+- **Dirección:** Polígono 143 Parcela 170, 03320 Torrellano A., Elche/Elx, Alicante
 - **Correo electrónico:** info@alcvaletparking.com
 - **Teléfono:** +34 601 35 63 56
 

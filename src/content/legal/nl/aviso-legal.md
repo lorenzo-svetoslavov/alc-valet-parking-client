@@ -87,7 +87,7 @@ Het bedrijf behoudt zich het recht voor om uw voertuig binnen de parkeerplaats t
 
 ## 5. GEGEVENSBESCHERMING
 
-In overeenstemming met de Organieke Wet 15/1999 worden uw gegevens opgenomen in een bestand van ALC VALET PARKING O.E. voor het beheer van onze diensten.
+In overeenstemming met de Organieke Wet 15/1999 worden uw gegevens opgenomen in een bestand van ALC CARS RENT AND PARKING S.L voor het beheer van onze diensten.
 
 Als u uw rechten van toegang, rectificatie, annulering of verzet wilt uitoefenen, kunt u dit doen door een e-mail te sturen naar: info@alcvaletparking.com
 

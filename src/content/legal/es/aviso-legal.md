@@ -87,7 +87,7 @@ La empresa se reserva el derecho de mover tu vehículo dentro del parking.
 
 ## 5. PROTECCIÓN DE DATOS
 
-De acuerdo con la Ley Orgánica 15/1999, tus datos se incluirán en un fichero perteneciente a ALC VALET PARKING O.E. para la gestión de nuestros servicios.
+De acuerdo con la Ley Orgánica 15/1999, tus datos se incluirán en un fichero perteneciente a ALC CARS RENT AND PARKING S.L para la gestión de nuestros servicios.
 
 Si deseas ejercer tus derechos de acceso, rectificación, cancelación u oposición, puedes hacerlo enviando un correo electrónico a: info@alcvaletparking.com
 
